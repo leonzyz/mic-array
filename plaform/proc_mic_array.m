@@ -1,4 +1,7 @@
+%sim
 clear all;close all;
+
+addpath('../source','../cfg');
 
 micarr_dis=3e-2;
 data_set_prefix='an';
@@ -9,8 +12,10 @@ micarr_delta=micarr_dis/340;
 max_delay=5
 
 for dataidx=1:1:1
-	micarr_data_file=strcat(data_set_path,data_set_prefix,num2str(100+dataidx),'-mtms-',data_set_postfix{1},'.adc');
-	micref_data_file=strcat(data_set_path,data_set_prefix,num2str(100+dataidx),'-mtms-',data_set_postfix{2},'.adc');
+	%micarr_data_file=strcat(data_set_path,data_set_prefix,num2str(100+dataidx),'-mtms-',data_set_postfix{1},'.adc');
+	%micref_data_file=strcat(data_set_path,data_set_prefix,num2str(100+dataidx),'-mtms-',data_set_postfix{2},'.adc');
+	micarr_data_file=strcat(data_set_prefix,num2str(100+dataidx),'-mtms-',data_set_postfix{1},'.adc');
+	micref_data_file=strcat(data_set_prefix,num2str(100+dataidx),'-mtms-',data_set_postfix{2},'.adc');
 
 	[arr_datainfo,arr_data]=split_adc_data(micarr_data_file);
 	[ref_datainfo,ref_data]=split_adc_data(micref_data_file);
