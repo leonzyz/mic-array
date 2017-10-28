@@ -5,9 +5,10 @@
 %   Date: 2017/10/21 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-addpath('../source','../cfg','../platform','./src');
+addpath('../source','../cfg','../platform','./src','../out');
 clear all;close all;
 global Cfg;
+Cfg.Outdir='../out';
 readcfg;
 if Cfg.Scenario==0
 	test_subfunction;
