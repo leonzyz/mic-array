@@ -1,7 +1,13 @@
-%sim
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% platform: microphone array simple simulation scripts
+% using GCC and CMU's data
+
+%   Author: leonzyz
+%   Date: 2017/10/21 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all;close all;
 
-addpath('../source','../cfg');
+addpath('../source','../cfg','../platform');
 
 micarr_dis=3e-2;
 data_set_prefix='an';

@@ -6,3 +6,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all;close all;
+addpath('../source','../cfg');
+readcfg;
+
