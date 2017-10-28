@@ -48,7 +48,7 @@ elseif Cfg.InfType==1
 	scaler=sqrt(Cfg.InfPow/bwratio);
 	tmp_noise=randn(1,len+2*fN)*scaler;
 	noise_filter=filter(h,1,tmp_noise);
-	interf=noise_filter(fN:fN+len-1);
+	interf=(noise_filter(fN:fN+len-1)).';
 else
 	[interf_src,fs]=wavread(Cfg.InfFilename);
 	upsampe_rate=Cfg.ChanFs/fs;
