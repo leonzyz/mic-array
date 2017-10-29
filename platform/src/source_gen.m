@@ -23,8 +23,14 @@ if Cfg.SourceType==0
 else
 	[voice_src,fs]=wavread(Cfg.SourceFilename);
 	upsample_rate=Cfg.ChanFs/fs;
-	voice=resample(voice_src,upsample_rate,1,64);
-	Cfg.SigPow=mean(abs(voice).^2);
+	%display(strcat('upsample_rate=',num2str(upsample_rate)))
+	if upsample_rate<1
+		voice=resample(voice_src,1,1/upsample_rate,64);
+	else
+		voice=resample(voice_src,upsample_rate,1,64);
+	end
+	vadflag=G729(voice,Cfg.ChanFs,0.01*Cfg.ChanFs*3,0.01*Cfg.ChanFs);
+	Cfg.SigPow=mean(abs(voice).^2)*length(vadflag)/sum(vadflag);
 end
 Cfg.InfPow=Cfg.SigPow/10^(Cfg.SIR/10);
 Cfg.NoisePow=Cfg.SigPow/10^(Cfg.SNR/10);
@@ -51,9 +57,15 @@ elseif Cfg.InfType==1
 	interf=(noise_filter(fN:fN+len-1)).';
 else
 	[interf_src,fs]=wavread(Cfg.InfFilename);
-	upsampe_rate=Cfg.ChanFs/fs;
-	interf_tmp=resample(interf_src,upsample_rate,1,64);
-	interf_pow=mean(abs(voice).^2);
+	upsample_rate=Cfg.ChanFs/fs;
+	%display(strcat('upsample_rate=',num2str(upsample_rate)))
+	if upsample_rate>1
+		interf_tmp=resample(interf_src,upsample_rate,1,64);
+	else
+		interf_tmp=resample(interf_src,1,1/upsample_rate,64);
+	end
+	vadflag=G729(interf_tmp,Cfg.ChanFs,0.01*Cfg.ChanFs*3,0.01*Cfg.ChanFs);
+	interf_pow=mean(abs(interf_tmp).^2)*length(vadflag)/sum(vadflag);
 	scaler=sqrt(Cfg.InfPow/interf_pow);
 	interf=interf*scaler;
 end
@@ -73,7 +85,11 @@ if Cfg.NoiseType==0
 else
 	[noise_src,fs]=readwave(Cfg.NoiseFilename);
 	upsample_rate=Cfg.AdcFs/fs;
-	noise_tmp=resample(noise_src,upsample_rate,1,64);
+	if upsample_rate>1
+		noise_tmp=resample(noise_src,upsample_rate,1,64);
+	else
+		noise_tmp=resample(noise_src,1,1/upsample_rate,64);
+	end
 	noise_pow=mean(abs(noise_tmp).^2);
 	scaler=sqrt(Cfg.NoisePow/noise_pow);
 	if length(noise_tmp)<Cfg.MicNum*len

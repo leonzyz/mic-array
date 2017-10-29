@@ -32,7 +32,7 @@ Cfg.NoiseFilename='source/noise.wav';	%only for SourceType=1
 Cfg.InfType=1;	%0=single tone,1=lowpass awgn,2=voice source
 Cfg.InfNum=0;	%number of interference
 Cfg.InfFreq=1e3;	%only for InfType=0
-Cfg.InfBW=4e3;	%only for InfType=1
+Cfg.InfBW=2e3;	%only for InfType=1
 %Cfg.InfFs=16e3;	%if the source file contain Fs, it will be overwrote
 Cfg.InfFilename='source/wav/arctic_a0118-sin.wav';	%only for InfType=2
 Cfg.InfPos=[1,45];	%voice source distance and direction
