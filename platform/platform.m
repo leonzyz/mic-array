@@ -10,6 +10,7 @@ clear all;close all;
 global Cfg;
 Cfg.Outdir='../out';
 readcfg;
+gen_const;
 if Cfg.Scenario==0
 	test_subfunction;
 elseif Cfg.Scenario==1
