@@ -36,12 +36,36 @@ end
 
 
 
+%{
 gen_geo_chan();
-
-%SourcePos=[1,60];InfPos=[1.2,30];
-%gen_geo_chan(SourcePos,InfPos);
-
-plot_geo_chan();
 mic_array_input=mapping_geo_chan(voice,interf,noise);
-Cfg.SourceDelaySample
-Cfg.InfDelaySample
+mic_array_power=zeros(1,Cfg.SimMicNum);
+for i=1:Cfg.SimMicNum
+	mic_array_power(i)=mean(abs(mic_array_input(i,:)).^2);
+end
+Cfg.MicArrayAvgPower=mean(mic_array_power);
+beamformingout=fixbeamforming(mic_array_input);
+outpower=mean(abs(beamformingout).^2);
+powerratio_db=10*log10(outpower/Cfg.MicArrayAvgPower);
+%}
+
+
+idxrange=1:36;
+for idx=idxrange
+	SourcePos=[1,(idx-1)*5];InfPos=[1.2,30];
+	gen_geo_chan(SourcePos,InfPos);
+	%plot_geo_chan();
+	mic_array_input=mapping_geo_chan(voice,interf,noise);
+	mic_array_power=zeros(1,Cfg.SimMicNum);
+	for i=1:Cfg.SimMicNum
+		mic_array_power(i)=mean(abs(mic_array_input(i,:)).^2);
+	end
+	Cfg.MicArrayAvgPower=mean(mic_array_power);
+	beamformingout=fixbeamforming(mic_array_input);
+	outpower=mean(abs(beamformingout).^2);
+	powerratio_db(idx)=10*log10(outpower/Cfg.MicArrayAvgPower);
+end
+%{
+%}
+angle_array=(idxrange-1)*5;
+figure;plot(angle_array,powerratio_db);

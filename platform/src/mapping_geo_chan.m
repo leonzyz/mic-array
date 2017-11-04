@@ -18,6 +18,7 @@ global Cfg;
 src_len=length(voice);
 AdcFsRatio=floor(Cfg.ChanFs/Cfg.AdcFs);
 out_len=floor(src_len/AdcFsRatio);
+Cfg.ChanAdcFsRatio=AdcFsRatio;
 
 if Cfg.ChanMode==0
 	Cfg.SourceDelay=Cfg.DistS2M./Cfg.VoiceSpeed;
@@ -44,10 +45,14 @@ if Cfg.ChanMode==0
 		adcin=src_tmpin+inf_tmpin;
 		mic_array_data(i,:)=adcin(1:AdcFsRatio:end)+noise(1:out_len);
 	end
+	Cfg.SourceDlyChanOut=floor(((mean(Cfg.SourceDelaySample))+SincFiltDly)/AdcFsRatio);
+	Cfg.idealvad_chanout=zeros(1,out_len);
+	Cfg.idealvad_chanout(1+Cfg.SourceDlyChanOut:end)=Cfg.idealvad(1:AdcFsRatio:end-Cfg.SourceDlyChanOut*AdcFsRatio);
 	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('01'))
 		figure;
 		for i=1:Cfg.SimMicNum
 			plot(mic_array_data(i,:));hold on;
 		end
+		grid on;title('channel mapping debug out');
 	end
 end
