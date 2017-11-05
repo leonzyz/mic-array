@@ -46,7 +46,7 @@ if Cfg.MicArrayType==0
 	end
 	Cfg.SourceDlyFBFOut=Cfg.SourceDlyChanOut+round(common_dly);
 	Cfg.idealvad_fbfout=zeros(1,src_len);
-	Cfg.idealvad_fbfout=Cfg.idealvad_chanout(1+round(common_dly):end-round(common_dly));
+	Cfg.idealvad_fbfout(1:end-round(common_dly))=Cfg.idealvad_chanout(1+round(common_dly):end);
 
 	if Cfg.FBFMode==0
 		FBFSumVect=ones(1,Cfg.SimMicNum)/Cfg.SimMicNum;
@@ -55,7 +55,7 @@ if Cfg.MicArrayType==0
 	end
 	fixbeamforminout=FBFSumVect*mic_steer_out;
 
-	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('03'))
+	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('04'))
 		figure;
 		plot(fixbeamforminout,'r');hold on;
 		delay_clean_speech=zeros(1,src_len);

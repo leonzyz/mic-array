@@ -13,14 +13,14 @@
 %   Author: leonzyz
 %   Date: 2017/10/21 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [voice,interf,noise]=source_gen(DebugEn)
+function [voice,interf,noise]=source_gen()
 global Cfg;
 if Cfg.SourceType==0
-	Cfg.SigPow=0.5;
+	Cfg.SigPow=Cfg.SourcePower;
 	fs=Cfg.ChanFs;
 	len=Cfg.SourceDuration*Cfg.ChanFs;
 	voice=sin([0:len-1]*2*pi*Cfg.SourceFreq/fs);
-else
+elseif Cfg.SourceType==1
 	[voice_src,fs]=wavread(Cfg.SourceFilename);
 	upsample_rate=Cfg.ChanFs/fs;
 	%display(strcat('upsample_rate=',num2str(upsample_rate)))
@@ -31,6 +31,26 @@ else
 	end
 	vadflag=G729(voice,Cfg.ChanFs,0.01*Cfg.ChanFs*3,0.01*Cfg.ChanFs);
 	Cfg.SigPow=mean(abs(voice).^2)*length(vadflag)/sum(vadflag);
+elseif Cfg.SourceType==2
+	Cfg.SigPow=Cfg.SourcePower;
+	bwstart=Cfg.SourceBW(1)/(Cfg.ChanFs/2);
+	bwend=Cfg.SourceBW(2)/(Cfg.ChanFs/2);
+	len=Cfg.SourceDuration*Cfg.ChanFs;
+	fN=126;
+	delta=0.05*(bwend-bwstart);
+	ant=10^(-40/20);%-40dB anttenuation
+	f=[0,bwstart,bwstart+delta,bwend,bwend+delta,1-delta];
+	a=[ant,0.5,1,1,ant,ant];
+	h=firls(fN,f,a);
+	if Cfg.DebugEn && bitand(Cfg.DebugMask,bin2dec('1000'))
+		f
+		fvtool(h,1);
+	end
+	bwratio=(Cfg.SourceBW(2)-Cfg.SourceBW(1))/(Cfg.ChanFs/2);
+	scaler=sqrt(Cfg.SigPow/bwratio);
+	tmp_noise=randn(1,len+2*fN)*scaler;
+	noise_filter=filter(h,1,tmp_noise);
+	voice=(noise_filter(fN:fN+len-1)).';
 end
 Cfg.InfPow=Cfg.SigPow/10^(Cfg.SIR/10);
 Cfg.NoisePow=Cfg.SigPow/10^(Cfg.SNR/10);
@@ -48,7 +68,7 @@ elseif Cfg.InfType==1
 	f=[0,bwratio,bwratio+delta,1-delta];
 	a=[1,1,ant,ant];
 	h=firls(fN,f,a);
-	if DebugEn
+	if Cfg.DebugEn && bitand(Cfg.DebugMask,bin2hex('1000'))
 		fvtool(h,1);
 	end
 	scaler=sqrt(Cfg.InfPow/bwratio);
