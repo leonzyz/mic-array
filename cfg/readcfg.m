@@ -22,13 +22,13 @@ Cfg.SNR=40;	%SNR of single microphone
 Cfg.SIR=40;	%SIR of single microphone
 %Cfg.TargetSigPow=0.1;	%
 Cfg.SourceType=2;	%0=single tone,1=voice,2=bandpass gaussian signal
-Cfg.SourceFreq=2000;	%only for SourceType=0
+Cfg.SourceFreq=4000;	%only for SourceType=0
 Cfg.SourceDuration=4;	%in unit of second,only for SourceType=0 & 2
 Cfg.SourceBW=[300,3700];	%bandpass gaussian signal start/end freq
 Cfg.SourcePower=0.1;	%only for SourceType 0 & 2
 Cfg.SourceFilename='../source/wav/arctic_a0114-sin.wav';	%only for SourceType=1
 %Cfg.SourceFs=16e3;	%voice source file sample rate,if the source file contain Fs, it will be overwrote
-Cfg.SourcePos=[2,135];	%voice source distance and direction
+Cfg.SourcePos=[4,135];	%voice source distance and direction
 Cfg.NoiseType=0;	%Interference typ,0=awgn,1=noise source
 %Cfg.NoiseBW=8e3;	%only for NoiseType=0
 Cfg.NoiseFilename='source/noise.wav';	%only for SourceType=1
@@ -39,9 +39,9 @@ Cfg.InfFreq=1.3e3;	%only for InfType=0
 Cfg.InfBW=2e3;	%only for InfType=1
 %Cfg.InfFs=16e3;	%if the source file contain Fs, it will be overwrote
 Cfg.InfFilename='source/wav/arctic_a0118-sin.wav';	%only for InfType=2
-Cfg.InfPos=[2,45];	%voice source distance and direction
+Cfg.InfPos=[4,45];	%voice source distance and direction
 Cfg.GccEn=0;	%0=GCC disble, 1=GCC enable
 Cfg.FBFSteerMode=1;	%0=delay sum,1=filter sum(sinc function)
-Cfg.FBFSteerAngle=90;
-Cfg.FBFfiltLen=15;	%for FBF mode=1
+Cfg.FBFSteerAngle=100;
+Cfg.FBFfiltLen=11;	%for FBF mode=1
 Cfg.FBFMode=0;	%0=1/N sum,1=cheby approx
