@@ -24,7 +24,7 @@ Cfg.MicArrayType=0;	%0=ULA,1=RLA,etc
 Cfg.SNR=40;	%SNR of single microphone
 Cfg.SIR=40;	%SIR of single microphone
 %Cfg.TargetSigPow=0.1;	%
-Cfg.SourceType=0;	%0=single tone,1=voice,2=bandpass gaussian signal
+Cfg.SourceType=2;	%0=single tone,1=voice,2=bandpass gaussian signal
 Cfg.SourceFreq=2000;	%only for SourceType=0
 Cfg.SourceDuration=4;	%in unit of second,only for SourceType=0 & 2
 Cfg.SourceBW=[300,3700];	%bandpass gaussian signal start/end freq
@@ -45,6 +45,6 @@ Cfg.InfFilename='source/wav/arctic_a0118-sin.wav';	%only for InfType=2
 Cfg.InfPos=[4,45];	%voice source distance and direction
 Cfg.GccEn=0;	%0=GCC disble, 1=GCC enable
 Cfg.FBFSteerMode=1;	%0=delay sum,1=filter sum(sinc function)
-Cfg.FBFSteerAngle=90;
+Cfg.FBFSteerAngle=120;
 Cfg.FBFfiltLen=11;	%for FBF mode=1
 Cfg.FBFMode=0;	%0=1/N sum,1=cheby approx

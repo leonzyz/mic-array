@@ -52,13 +52,13 @@ theta_array=angle_array/180*pi;
 if Cfg.SourceType==0
 	beampattern=gen_ideal_beampattern(Cfg.SourceFreq,theta_array);
 elseif Cfg.SourceType==2
-	M=40;
+	M=20;
 	freq_step=(Cfg.SourceBW(2)-Cfg.SourceBW(1))/M;
 	beampattern=zeros(1,length(theta_array));
 	for i=1:M
 		f=Cfg.SourceBW(1)+freq_step*(i-1);
 		tmp_pattern=gen_ideal_beampattern(f,theta_array);
-		beampattern=beampattern+tmp_pattern;
+		beampattern=beampattern+abs(tmp_pattern);
 	end
 	beampattern=beampattern/M;
 end
