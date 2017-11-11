@@ -36,7 +36,6 @@ end
 
 
 
-%{
 gen_geo_chan();
 mic_array_input=mapping_geo_chan(voice,interf,noise);
 mic_array_power=zeros(1,Cfg.SimMicNum);
@@ -47,9 +46,11 @@ Cfg.MicArrayAvgPower=mean(mic_array_power);
 beamformingout=fixbeamforming(mic_array_input);
 outpower=mean(abs(beamformingout).^2);
 powerratio_db=10*log10(outpower/Cfg.MicArrayAvgPower);
+%{
 %}
 
 
+%{
 phase_step=5;
 idxrange=1:180/phase_step;
 for idx=idxrange
@@ -67,7 +68,6 @@ for idx=idxrange
 	outpower=sum((abs(beamformingout).^2).*Cfg.idealvad_fbfout)./sum(Cfg.idealvad_fbfout);
 	powerratio_db(idx)=10*log10(outpower/Cfg.MicArrayAvgPower);
 end
-%{
-%}
 angle_array=(idxrange-1)*phase_step;
 figure;plot(angle_array,powerratio_db);
+%}
