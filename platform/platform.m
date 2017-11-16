@@ -13,7 +13,6 @@ readcfg;
 gen_const;
 if Cfg.Scenario==0
 	test_subfunction;
-	display('test')
 elseif Cfg.Scenario==1
 	sim_fixbeamforming;
 else
