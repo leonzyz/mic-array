@@ -8,7 +8,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 global Cfg;
-Cfg.Scenario=0;	%0=test_subfunction,1=fixbeamforming,2=frost beamforming,3=GJBF
+Cfg.Scenario=2;	%0=test_subfunction,1=fixbeamforming,2=frost beamforming,3=GJBF
 Cfg.DebugEn=1;	%0=disable,1=enable
 Cfg.DebugMask=bin2dec('00000');	%bit0=channel mapping out, bit1=fbf in,bit2=beampattern steer out,bit3=source gen filter,bit4=frost beamforming debug
 Cfg.FixEn=0;	%
@@ -17,7 +17,7 @@ Cfg.ChanFs=64e3;	%modeling sample rate
 Cfg.ChanMode=0;	%0=simple delay mode,1=reveberant room
 Cfg.MicNum=4;	%microphone number
 %Cfg.MicNum=3;	%microphone number
-%Cfg.MicDist=1.1e-2/2;	%microphone distance
+%Cfg.MicDist=0.8e-2;	%microphone distance
 Cfg.MicDist=4.1e-2;	%microphone distance
 %Cfg.MicDist=5.1e-2;	%microphone distance
 Cfg.MicArrayType=0;	%0=ULA,1=RLA,etc
@@ -31,7 +31,7 @@ Cfg.SourceBW=[300,3700];	%bandpass gaussian signal start/end freq
 Cfg.SourcePower=0.1;	%only for SourceType 0 & 2
 Cfg.SourceFilename='../source/wav/arctic_a0114-sin.wav';	%only for SourceType=1
 %Cfg.SourceFs=16e3;	%voice source file sample rate,if the source file contain Fs, it will be overwrote
-Cfg.SourcePos=[20,120];	%voice source distance and direction
+Cfg.SourcePos=[10,120];	%voice source distance and direction
 Cfg.NoiseType=0;	%Interference typ,0=awgn,1=noise source
 %Cfg.NoiseBW=8e3;	%only for NoiseType=0
 Cfg.NoiseFilename='source/noise.wav';	%only for SourceType=1

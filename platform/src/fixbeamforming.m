@@ -1,3 +1,13 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% fixbeamforming: fix coefficient beamforming
+
+%	Input:
+%		Microphone Array input
+%	Global Parma:Cfg
+%	Ouput:
+%		fix beam forming out
+%	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function fixbeamformingout=fixbeamforming(mic_array_input)
 global Cfg;
 

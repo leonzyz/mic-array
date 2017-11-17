@@ -1,3 +1,13 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% frost beamforming: linear constrained coefficient beamforming based on frost's paper
+
+%	Input:
+%		Microphone Array input
+%	Global Parma:Cfg
+%	Ouput:
+%		frost adaptive beam forming out
+%	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function beamformingout=frost_beamforming(mic_array_input)
 global Cfg;
 src_len=length(mic_array_input(1,:));

@@ -15,6 +15,8 @@ if Cfg.Scenario==0
 	test_subfunction;
 elseif Cfg.Scenario==1
 	sim_fixbeamforming;
+elseif Cfg.Scenario==2
+	sim_frost_BF;
 else
 	display('not supported yet');
 end
