@@ -45,9 +45,11 @@ Cfg.InfFilename='source/wav/arctic_a0118-sin.wav';	%only for InfType=2
 Cfg.InfPos=[10,45];	%voice source distance and direction
 Cfg.GccEn=0;	%0=GCC disble, 1=GCC enable
 Cfg.FBFSteerMode=1;	%0=delay sum,1=filter sum(sinc function)
-Cfg.FBFSteerAngle=90;
+Cfg.FBFSteerAngle=120;
 Cfg.FBFfiltLen=11;	%for FBF mode=1
 Cfg.FBFMode=0;	%0=1/N sum,1=cheby approx
 Cfg.CCAF_u=0.05;	%adaptive beam forming training speed of CCAF
-Cfg.ANC_u=0.2;	%adaptive beam forming training speed of ANC
+Cfg.ANC_u=0.05;	%adaptive beam forming training speed of ANC
 Cfg.BlockMatrixType=0;	%BM type for GJBF, 0=[1,-1,0..] cyclic vector, 1=partial hadamar matrix
+Cfg.ANC_W_NormEn=0;	%ANC normalization enable
+Cfg.ANC_W_NormTH=100;	%ANC normalization Threshold

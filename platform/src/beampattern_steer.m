@@ -33,6 +33,7 @@ if Cfg.MicArrayType==0
 		for i=1:Cfg.SimMicNum
 			mic_dly=delay_vector(i)+common_dly;
 			mic_steer_filter=sinc([-common_dly:1:common_dly]+delay_vector(i));
+			mic_steer_filter=mic_steer_filter/sum(mic_steer_filter);
 			mic_steer_out(i,:)=filter(mic_steer_filter,1,mic_array_input(i,:));
 		end
 	end
