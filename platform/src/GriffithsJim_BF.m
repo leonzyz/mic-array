@@ -35,6 +35,11 @@ mic_steer_out=beampattern_steer(mic_array_input);
 
 %yc(t)
 FBFout=mean(mic_steer_out);
+%{
+figure;
+plot(mic_steer_out.');
+hold on;plot(FBFout,'k');title('steer debug');
+%}
 common_dly=K;
 FBFout_dly=zeros(1,src_len);
 FBFout_dly(1+common_dly:end)=FBFout(1:end-common_dly);
@@ -75,13 +80,16 @@ for i=1:sim_len
 	%}
 	
 	%update phase
-	%{
-	if Cfg.adaptionU==0
+	if Cfg.ANC_AdaptionU==0
 		u=Cfg.ANC_u;
 	else
-		u=0.05
+		power=sum(sum(reg_matrix.^2));
+		if power>1
+			u=Cfg.ANC_u/power;
+		else
+			u=Cfg.ANC_u;
+		end
 	end
-	%}
 	for bm_idx=1:Cfg.SimMicNum-1
 		ANC_matrix=ANC_matrix+u*y(i)*reg_matrix;
 	end
@@ -91,6 +99,12 @@ for i=1:sim_len
 			ratio=sqrt(Cfg.ANC_W_NormTH/ANC_W(i));
 			ANC_matrix=ANC_matrix*ratio;
 		end
+	end
+	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('20'))
+		u_trace(i)=u;
+		BM_W(i)=sum(BM_out(:,i).^2);
+		X_W(i)=sum(sum(reg_matrix.^2));
+		ANC_W_TH(i)=sum(sum(ANC_matrix.^2));
 	end
 end
 beamformingout=y;
@@ -104,7 +118,11 @@ if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('20'))
 	figure;plot(ANC_matrix.');legend('1','2','3');title('ANC matrix');
 	figure;plot(yA,'k');
 	hold on;plot(FBFout_dly,'b');
-	figure;plot(ANC_W,'r');
+	figure;plot(ANC_W,'r');hold on;plot(ANC_W_TH,'g');hold on;plot(X_W,'b');
+	hold on;plot(BM_W,'m');
+	if Cfg.ANC_AdaptionU==1
+		figure;plot(u_trace);
+	end
 end
 
 Cfg.idealvad_fbfout=zeros(1,src_len);

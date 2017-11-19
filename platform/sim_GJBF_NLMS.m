@@ -31,6 +31,7 @@ beamformingout=GriffithsJim_BF(mic_array_input);
 %}
 
 
+Cfg.DebugMask=0;
 phase_step=10;
 idxrange=1:180/phase_step;
 warmup_sample=5000;
