@@ -8,9 +8,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 global Cfg;
-Cfg.Scenario=3;	%0=test_subfunction,1=fixbeamforming,2=frost beamforming,3=GJBF
-Cfg.BFSimMode=1;	%0=debug,1=power sweep, fix steer angle, try different source angle,2=interference sweep, fix steer angle and source angle, try different interference angle
-Cfg.GenieEn=0;	%Genie info enable
+Cfg.Scenario=0;	%0=general model,1=fixbeamforming,2=frost beamforming,3=GJBF
+Cfg.BeamformingMode=2;	%beamforming mode in general model,0=fixbeamforming,1=frost beamforming,2=GJBF,3=CCAF+NCAF
+Cfg.BFSimMode=0;	%0=debug,1=power sweep, fix steer angle, try different source angle,2=interference sweep, fix steer angle and source angle, try different interference angle
+Cfg.GenieEn=1;	%Genie info enable
 Cfg.DebugEn=1;	%0=disable,1=enable
 Cfg.DebugMask=bin2dec('000000');	%bit0=channel mapping out, bit1=fbf in,bit2=beampattern steer out,bit3=source gen filter,bit4=frost beamforming debug,bit5=GJBF debug,bit6=CCAF ABM BF debug
 Cfg.FixEn=0;	%
@@ -26,8 +27,9 @@ Cfg.MicArrayType=0;	%0=ULA,1=RLA,etc
 Cfg.SNR=40;	%SNR of single microphone
 Cfg.SIR=0;	%SIR of single microphone
 %Cfg.TargetSigPow=0.1;	%
-Cfg.SourceType=2;	%0=single tone,1=voice,2=bandpass gaussian signal
+Cfg.SourceType=0;	%0=single tone,1=voice,2=bandpass gaussian signal
 Cfg.SourceFreq=600;	%only for SourceType=0
+Cfg.SourceVadMaskEn=0;	%only for Source Typt 0/2
 Cfg.SourceDuration=2;	%in unit of second,only for SourceType=0 & 2
 Cfg.SourceBW=[300,3700];	%bandpass gaussian signal start/end freq
 Cfg.SourcePower=0.1;	%only for SourceType 0 & 2

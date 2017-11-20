@@ -46,4 +46,6 @@ if Cfg.MicArrayType==0
 	end
 	Cfg.idealvad_fbfout=zeros(1,src_len);
 	Cfg.idealvad_fbfout=Cfg.idealvad_steerout;
+	Cfg.cleanspeech_bfdly=zeros(1,src_len);
+	Cfg.cleanspeech_bfdly(Cfg.SourceDlyFBFOut+1:end)=Cfg.cleanspeech(1:Cfg.ChanAdcFsRatio:end-Cfg.ChanAdcFsRatio*Cfg.SourceDlyFBFOut);
 end

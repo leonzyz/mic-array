@@ -12,7 +12,7 @@ Cfg.Outdir='../out';
 readcfg;
 gen_const;
 if Cfg.Scenario==0
-	test_subfunction;
+	general_model;
 elseif Cfg.Scenario==1
 	sim_fixbeamforming;
 elseif Cfg.Scenario==2

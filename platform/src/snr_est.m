@@ -4,6 +4,11 @@ srclen=length(bfout);
 seglen=2048;
 segnum=2^floor((log2(srclen)))/seglen;
 
+if 0
+	figure;plot(cleanspeech,'g')
+	hold on;plot(bfout,'r');
+	title('SNR debug 1');
+end
 corr=mean(cleanspeech.*bfout)/mean(cleanspeech.^2);
 %[tao,rr_sum]=GCC_PHAT(cleanspeech,bfout,seglen,16e3);
 display(strcat('corr=',num2str(corr)));

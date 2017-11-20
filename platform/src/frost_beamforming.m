@@ -12,9 +12,9 @@ function beamformingout=frost_beamforming(mic_array_input)
 global Cfg;
 src_len=length(mic_array_input(1,:));
 
-FiltL=16;
+FiltL=17;
 contraint_vector=zeros(1,FiltL);
-contraint_vector(floor((FiltL-1)/2))=1;
+contraint_vector(floor((FiltL-1)/2)+1)=1;
 
 %{
 fN=FiltL-1;
@@ -110,4 +110,6 @@ if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('10'))
 end
 
 Cfg.idealvad_fbfout=zeros(1,src_len);
-Cfg.idealvad_fbfout(1:end-round((FiltL-1)/2))=Cfg.idealvad_steerout(1+round((FiltL-1)/2):end);
+Cfg.idealvad_fbfout(1+round((FiltL-1)/2):end)=Cfg.idealvad_steerout(1:end-round((FiltL-1)/2));
+Cfg.cleanspeech_bfdly=zeros(1,src_len);
+Cfg.cleanspeech_bfdly(1+round((FiltL-1)/2):end)=Cfg.cleanspeech_steerdly(1:end-round((FiltL-1)/2));
