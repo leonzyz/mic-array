@@ -31,38 +31,37 @@ contraint_vector=h;
 W=zeros(Cfg.SimMicNum,FiltL);
 
 mic_steer_out=beampattern_steer(mic_array_input);
+if Cfg.GenieEn==1
+	Cfg.refdata_steer_out=beampattern_steer(Cfg.mic_array_refdata);
+	Cfg.refintf_steer_out=beampattern_steer(Cfg.mic_array_refintf);
+	Cfg.refnoise_steer_out=beampattern_steer(Cfg.mic_array_refnoise);
+end
 
-%{
-FBFSumVect=ones(1,Cfg.SimMicNum)/Cfg.SimMicNum;
-beamformingout=FBFSumVect*mic_steer_out;
-%}
 beamformingout=zeros(1,src_len);
-%ydebug=zeros(src_len,Cfg.SimMicNum);
-
 reg_matrix=zeros(Cfg.SimMicNum,FiltL);
+if Cfg.GenieEn==1
+	Cfg.refdata_beamformingout=zeros(1,src_len);
+	Cfg.refintf_beamformingout=zeros(1,src_len);
+	Cfg.refnoise_beamformingout=zeros(1,src_len);
+	Cfg.refdata_reg_matrix=zeros(Cfg.SimMicNum,FiltL);
+	Cfg.refintf_reg_matrix=zeros(Cfg.SimMicNum,FiltL);
+	Cfg.refnoise_reg_matrix=zeros(Cfg.SimMicNum,FiltL);
+end
+
 C_T=zeros(FiltL,Cfg.SimMicNum*FiltL);
 for i=1:FiltL
 	range_idx=[1:Cfg.SimMicNum]+(i-1)*Cfg.SimMicNum;
 	C_T(i,range_idx)=ones(1,Cfg.SimMicNum);
 end
 C=C_T.';
-if 0
-	display(strcat('size of C=',num2str(size(C))));
-	display(strcat('size of C_T=',num2str(size(C_T))));
-end
 
 F=contraint_vector.';
 %init weight matrix
 W0=C*inv(C_T*C)*F;
-if 0
-	display(strcat('size of W0=',num2str(size(W0))));
-end
 
 mean_error=zeros(1,FiltL);
 u=Cfg.CCAF_u;
 sim_len=src_len;
-%figure;plot(mic_steer_out(1,:));
-%figure;plot(mic_array_input(:,1:500).');
 if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('10'))
 	figure;plot(mic_steer_out(:,1:500).');
 end
@@ -70,16 +69,24 @@ end
 for mic_idx=1:Cfg.SimMicNum
 	W(mic_idx,:)=W0(mic_idx:Cfg.SimMicNum:end);
 end
-%figure;plot(W.');
-%figure;plot(F);
 
 for i=1:sim_len
 
 	%input phase
 	for mic_idx=1:Cfg.SimMicNum
 		reg_matrix(mic_idx,:)=[mic_steer_out(mic_idx,i),reg_matrix(mic_idx,1:end-1)];
+		if Cfg.GenieEn==1
+			Cfg.refdata_reg_matrix(mic_idx,:)=[Cfg.refdata_steer_out(mic_idx,i),Cfg.refdata_reg_matrix(mic_idx,1:end-1)];
+			Cfg.refnoise_reg_matrix(mic_idx,:)=[Cfg.refnoise_steer_out(mic_idx,i),Cfg.refnoise_reg_matrix(mic_idx,1:end-1)];
+			Cfg.refintf_reg_matrix(mic_idx,:)=[Cfg.refintf_steer_out(mic_idx,i),Cfg.refintf_reg_matrix(mic_idx,1:end-1)];
+		end
 	end
 	y(i)=sum(sum(W.*reg_matrix));
+	if Cfg.GenieEn==1
+		Cfg.refdata_beamformingout(i)=sum(sum(W.*Cfg.refdata_reg_matrix));
+		Cfg.refnoise_beamformingout(i)=sum(sum(W.*Cfg.refnoise_reg_matrix));
+		Cfg.refintf_beamformingout(i)=sum(sum(W.*Cfg.refintf_reg_matrix));
+	end
 	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('10'))
 		ydebug(i,:)=sum(W.*reg_matrix,2);
 	end

@@ -8,6 +8,10 @@
 %	Global Parma:Cfg, including ChanMode,channel geometry param etc.
 %	Ouput:
 %		mic_array_data: MicArray samples in Cfg.AdcFs(with interf & noise).
+%	Global Param Out: reference data for segment SNR calculation
+%		Cfg.mic_array_refdata: MicArray samples in Cfg.AdcFs(with only signal)
+%		Cfg.mic_array_refnoise: MicArray samples in Cfg.AdcFs(with only noise)
+%		Cfg.mic_array_refintf: MicArray samples in Cfg.AdcFs(with only interference)
 %	
 %   Author: leonzyz
 %   Date: 2017/11/03 
@@ -30,6 +34,11 @@ if Cfg.ChanMode==0
 	Cfg.SourceDelaySampleInt=floor(Cfg.SourceDelaySample)-SincFiltDly;
 	Cfg.InfDelaySampleInt=floor(Cfg.InfDelaySample)-SincFiltDly;
 	mic_array_data=zeros(Cfg.SimMicNum,floor(out_len));
+	if Cfg.GenieEn==1
+		Cfg.mic_array_refdata=zeros(Cfg.SimMicNum,floor(out_len));
+		Cfg.mic_array_refnoise=zeros(Cfg.SimMicNum,floor(out_len));
+		Cfg.mic_array_refintf=zeros(Cfg.SimMicNum,floor(out_len));
+	end
 	for i=1:Cfg.SimMicNum
 		frac_dly=Cfg.SourceDelaySample(i)-floor(Cfg.SourceDelaySample(i));
 		h_sinc=sinc([-SincFiltDly:1:SincFiltDly]+frac_dly);
@@ -44,10 +53,17 @@ if Cfg.ChanMode==0
 		inf_tmpin=filter(h_sinc,1,inf_tmpin);
 		adcin=src_tmpin+inf_tmpin;
 		mic_array_data(i,:)=adcin(1:AdcFsRatio:end)+noise(1:out_len);
+		if Cfg.GenieEn==1
+			Cfg.mic_array_refdata(i,:)=src_tmpin(1:AdcFsRatio:end);
+			Cfg.mic_array_refintf(i,:)=inf_tmpin(1:AdcFsRatio:end);
+			Cfg.mic_array_refnoise(i,:)=noise(1:out_len);
+		end
 	end
-	Cfg.SourceDlyChanOut=floor(((mean(Cfg.SourceDelaySample))+SincFiltDly)/AdcFsRatio);
+	Cfg.SourceDlyChanOut=floor(((mean(Cfg.SourceDelaySample)))/AdcFsRatio);
 	Cfg.idealvad_chanout=zeros(1,out_len);
 	Cfg.idealvad_chanout(1+Cfg.SourceDlyChanOut:end)=Cfg.idealvad(1:AdcFsRatio:end-Cfg.SourceDlyChanOut*AdcFsRatio);
+	Cfg.cleanspeech_chandly=zeros(1,out_len);
+	Cfg.cleanspeech_chandly(1+Cfg.SourceDlyChanOut:end)=Cfg.cleanspeech(1:AdcFsRatio:end-Cfg.SourceDlyChanOut*AdcFsRatio);
 	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('01'))
 		figure;
 		for i=1:Cfg.SimMicNum

@@ -15,6 +15,11 @@ global Cfg;
 src_len=length(mic_array_input(1,:));
 if Cfg.MicArrayType==0
 	mic_steer_out=beampattern_steer(mic_array_input);
+	if Cfg.GenieEn==1
+		Cfg.refdata_steer_out=beampattern_steer(Cfg.mic_array_refdata);
+		Cfg.refintf_steer_out=beampattern_steer(Cfg.mic_array_refintf);
+		Cfg.refnoise_steer_out=beampattern_steer(Cfg.mic_array_refnoise);
+	end
 	Cfg.SourceDlyFBFOut=Cfg.SourceDlySteerOut;
 	if Cfg.FBFMode==0
 		FBFSumVect=ones(1,Cfg.SimMicNum)/Cfg.SimMicNum;
@@ -23,6 +28,12 @@ if Cfg.MicArrayType==0
 		FBFSumVect=ones(1,Cfg.SimMicNum)/Cfg.SimMicNum;
 	end
 	fixbeamformingout=FBFSumVect*mic_steer_out;
+	if Cfg.GenieEn==1
+		Cfg.refdata_beamformingout=FBFSumVect*Cfg.refdata_steer_out;
+		Cfg.refintf_beamformingout=FBFSumVect*Cfg.refintf_steer_out;
+		Cfg.refnoise_beamformingout=FBFSumVect*Cfg.refnoise_steer_out;
+	end
+
 
 	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('04'))
 		figure;

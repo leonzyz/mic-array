@@ -68,7 +68,7 @@ elseif Cfg.InfType==1
 	f=[0,bwratio,bwratio+delta,1-delta];
 	a=[1,1,ant,ant];
 	h=firls(fN,f,a);
-	if Cfg.DebugEn && bitand(Cfg.DebugMask,bin2hex('1000'))
+	if Cfg.DebugEn && bitand(Cfg.DebugMask,bin2dec('1000'))
 		fvtool(h,1);
 	end
 	scaler=sqrt(Cfg.InfPow/bwratio);

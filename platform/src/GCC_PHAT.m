@@ -1,10 +1,11 @@
 function [tao,rr_sum]=GCC_PHAT(data1,data2,seglen,fs_voice)
+global Cfg;
 len=2^floor(log2(length(data1)));
 tone_freq=freq_est(data1,len,fs_voice);
 segnum=floor(min(length(data1),length(data2))/seglen);
 rr_sum=zeros(1,seglen);
-%for segidx=1:segnum
-for segidx=1:1
+for segidx=1:segnum
+%for segidx=1:1
 	range_idx=[(segidx-1)*seglen+1:segidx*seglen];
 	data1_set=data1(range_idx);
 	data2_set=data2(range_idx);
@@ -36,7 +37,7 @@ for segidx=1:1
 	end
 	%}
 
-	if 1
+	if Cfg.GccNotchEn==0
 		f_data1=fft(data1_set-mean(data1_set));
 		f_data2=fft(data2_set-mean(data2_set));
 	else

@@ -55,5 +55,7 @@ if Cfg.MicArrayType==0
 	end
 	Cfg.SourceDlySteerOut=Cfg.SourceDlyChanOut+round(common_dly);
 	Cfg.idealvad_steerout=zeros(1,src_len);
-	Cfg.idealvad_steerout(1:end-round(common_dly))=Cfg.idealvad_chanout(1+round(common_dly):end);
+	Cfg.idealvad_steerout(1+round(common_dly):end)=Cfg.idealvad_chanout(1:end-round(common_dly));
+	Cfg.cleanspeech_steerdly=zeros(1,src_len);
+	Cfg.cleanspeech_steerdly(1+round(common_dly):end)=Cfg.cleanspeech_chandly(1:end-round(common_dly));
 end
