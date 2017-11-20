@@ -5,7 +5,6 @@ Cfg.cleanspeech=voice;
 display(strcat('signal power=',num2str(Cfg.SigPow)));
 display(strcat('interferece power=',num2str(Cfg.InfPow)));
 display(strcat('noise power=',num2str(Cfg.NoisePow)));
-figure;plot(voice);hold on;plot(interf,'r');hold on;plot(noise(1,:),'k');
 
 if Cfg.SourceType==1
 	Cfg.idealvad=G729(Cfg.cleanspeech,Cfg.ChanFs,0.01*Cfg.ChanFs*3,0.01*Cfg.ChanFs);%according to the G729.B
@@ -15,6 +14,23 @@ else
 end
 
 %figure;plot(voice,'r');hold on;plot(Cfg.idealvad,'k');
+
+src_len=length(voice);
+if Cfg.SourceVadMaskEn==1 && Cfg.SourceType~=1
+	vadmask=zeros(1,src_len);
+	maskperiod=Cfg.SourceVadMaskPeriod*Cfg.ChanFs;
+	masklen1=Cfg.SourceVadMaskLen*Cfg.ChanFs;
+	masklen0=maskperiod-masklen1;
+	segnum=floor(src_len/maskperiod);
+	for i=1:segnum
+		rangeidx=(1:masklen1)+masklen0+(i-1)*maskperiod;
+		vadmask(rangeidx)=ones(1,masklen1);
+	end
+	Cfg.idealvad=Cfg.idealvad.*vadmask;
+	voice=voice.*(vadmask).';
+	Cfg.cleanspeech=voice;
+end
+figure;plot(voice);hold on;plot(interf,'r');hold on;plot(noise(1,:),'k');
 
 
 if Cfg.BFSimMode==0

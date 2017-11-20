@@ -4,12 +4,12 @@ srclen=length(bfout);
 seglen=2048;
 segnum=2^floor((log2(srclen)))/seglen;
 
-if 0
+if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('4'))
 	figure;plot(cleanspeech,'g')
 	hold on;plot(bfout,'r');
 	title('SNR debug 1');
 end
-corr=mean(cleanspeech.*bfout)/mean(cleanspeech.^2);
+corr=mean(cleanspeech.*bfout.*vad)/mean((cleanspeech.*vad).^2);
 %[tao,rr_sum]=GCC_PHAT(cleanspeech,bfout,seglen,16e3);
 display(strcat('corr=',num2str(corr)));
 %display(strcat('tao=',num2str(tao)));
@@ -23,9 +23,10 @@ for idx=1:segnum
 	end
 	data=bfout(rangeidx);
 	refdata=cleanspeech(rangeidx);
+	vad_t=vad(rangeidx);
 	noise=data-refdata*ratio;
-	sig_pow=mean((cleanspeech*ratio).^2);
-	noise_pow=mean(noise.^2);
+	sig_pow=mean((refdata*ratio).^2);
+	noise_pow=mean((noise.*vad_t).^2);
 	SNR_tmp=10*log10(sig_pow/noise_pow);
 	SNR_acc=SNR_acc+SNR_tmp;
 	effect_segnum=effect_segnum+1;
@@ -35,7 +36,7 @@ SNR_out=SNR_acc/effect_segnum;
 %tao
 %{%}
 %if Cfg.DebugEn
-if 0
+if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('4'))
 	ratio
 	figure;plot(cleanspeech*ratio,'g')
 	hold on;plot(bfout,'r');

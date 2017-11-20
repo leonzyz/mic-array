@@ -35,7 +35,7 @@ if Cfg.MicArrayType==0
 	end
 
 
-	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('04'))
+	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('08'))
 		figure;
 		plot(fixbeamformingout,'r');hold on;
 		delay_clean_speech=zeros(1,src_len);

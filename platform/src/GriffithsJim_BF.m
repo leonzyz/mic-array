@@ -84,7 +84,7 @@ u=Cfg.ANC_u;
 sim_len=src_len;
 %figure;plot(mic_steer_out(1,:));
 %figure;plot(mic_array_input(:,1:500).');
-if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('20'))
+if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('8'))
 	figure;plot(mic_steer_out(:,1:5000).');
 end
 
@@ -115,7 +115,7 @@ for i=1:sim_len
 
 
 	%{
-	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('20'))
+	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('8'))
 		ydebug(i,:)=sum(ANC_matrix.*reg_matrix,2);
 	end
 	%}
@@ -143,7 +143,7 @@ for i=1:sim_len
 			end
 		end
 	end
-	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('20'))
+	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('8'))
 		u_trace(i)=u;
 		BM_W(i)=sum(BM_out(:,i).^2);
 		X_W(i)=sum(sum(reg_matrix.^2));
@@ -152,7 +152,7 @@ for i=1:sim_len
 end
 beamformingout=y;
 
-if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('20'))
+if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('8'))
 	figure;plot(mic_steer_out(:,1:sim_len).');title('steer out');
 	hold on;plot(Cfg.idealvad_steerout(1:sim_len),'r');
 	hold on;plot(FBFout_dly,'k');title('FBFout_dly');

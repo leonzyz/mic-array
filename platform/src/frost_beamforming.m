@@ -62,7 +62,7 @@ W0=C*inv(C_T*C)*F;
 mean_error=zeros(1,FiltL);
 u=Cfg.CCAF_u;
 sim_len=src_len;
-if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('10'))
+if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('8'))
 	figure;plot(mic_steer_out(:,1:500).');
 end
 
@@ -87,7 +87,7 @@ for i=1:sim_len
 		Cfg.refnoise_beamformingout(i)=sum(sum(W.*Cfg.refnoise_reg_matrix));
 		Cfg.refintf_beamformingout(i)=sum(sum(W.*Cfg.refintf_reg_matrix));
 	end
-	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('10'))
+	if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('8'))
 		ydebug(i,:)=sum(W.*reg_matrix,2);
 	end
 
@@ -102,7 +102,7 @@ for i=1:sim_len
 end
 beamformingout=y;
 
-if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('10'))
+if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('8'))
 	figure;plot(mic_steer_out(:,1:sim_len).');title('steer out');
 	hold on;plot(Cfg.idealvad_steerout(1:sim_len),'r');
 	figure;plot(y,'r');
