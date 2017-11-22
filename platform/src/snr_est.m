@@ -2,9 +2,9 @@ function SNR_out=snr_est(cleanspeech,bfout,vad)
 global Cfg;
 srclen=length(bfout);
 seglen=2048;
-segnum=2^floor((log2(srclen)))/seglen;
+segnum=floor((srclen-Cfg.SnrWarmUp)/seglen);
 
-if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('4'))
+if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('20'))
 	figure;plot(cleanspeech,'g')
 	hold on;plot(bfout,'r');
 	title('SNR debug 1');
@@ -16,8 +16,9 @@ display(strcat('corr=',num2str(corr)));
 ratio=sqrt(abs(corr));
 effect_segnum=0;
 SNR_acc=0;
+SNR_seg=zeros(1,segnum);
 for idx=1:segnum
-	rangeidx=1:seglen+(idx-1)*seglen;
+	rangeidx=1:seglen+(idx-1)*seglen+Cfg.SnrWarmUp;
 	if sum(vad(rangeidx))<1/2*seglen
 		continue;
 	end
@@ -30,16 +31,18 @@ for idx=1:segnum
 	SNR_tmp=10*log10(sig_pow/noise_pow);
 	SNR_acc=SNR_acc+SNR_tmp;
 	effect_segnum=effect_segnum+1;
+	SNR_seg(idx)=SNR_tmp;
 end
 SNR_out=SNR_acc/effect_segnum;
 %[tao,rr_sum]=GCC_PHAT(cleanspeech,bfout,seglen,2e3);
 %tao
 %{%}
 %if Cfg.DebugEn
-if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('4'))
+if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('20'))
 	ratio
 	figure;plot(cleanspeech*ratio,'g')
 	hold on;plot(bfout,'r');
 	hold on;plot(bfout-cleanspeech*ratio,'k');
 	title('SNR debug');
+	figure;plot(SNR_seg);title('SNR trace');
 end

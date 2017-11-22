@@ -8,9 +8,15 @@ display(strcat('noise power=',num2str(Cfg.NoisePow)));
 
 if Cfg.SourceType==1
 	Cfg.idealvad=G729(Cfg.cleanspeech,Cfg.ChanFs,0.01*Cfg.ChanFs*3,0.01*Cfg.ChanFs);%according to the G729.B
-	figure;plot(Cfg.cleanspeech);hold on;plot(Cfg.idealvad*abs(max(Cfg.cleanspeech)),'r');grid on;
+	%figure;plot(Cfg.cleanspeech);hold on;plot(Cfg.idealvad*abs(max(Cfg.cleanspeech)),'r');grid on;
 else
 	Cfg.idealvad=ones(1,length(Cfg.cleanspeech));
+end
+
+if Cfg.BeamformingMode==3 && Cfg.CCAF_MaskEn==1
+	[upb,lowb]=gen_ccaf_mask(Cfg.CCAF_MaskMaxAngle);
+	Cfg.CCAF_MaskUpperBound=upb;
+	Cfg.CCAF_MaskLowerBound=lowb;
 end
 
 %figure;plot(voice,'r');hold on;plot(Cfg.idealvad,'k');
@@ -23,82 +29,119 @@ if Cfg.SourceVadMaskEn==1 && Cfg.SourceType~=1
 	masklen0=maskperiod-masklen1;
 	segnum=floor(src_len/maskperiod);
 	for i=1:segnum
-		rangeidx=(1:masklen1)+masklen0+(i-1)*maskperiod;
+		if Cfg.SourceVadMaskMode==0
+			rangeidx=(1:masklen1)+masklen0+(i-1)*maskperiod;
+		else
+			rangeidx=(1:masklen1)+(i-1)*maskperiod;
+		end
 		vadmask(rangeidx)=ones(1,masklen1);
 	end
+	s1=size(vadmask);s2=size(voice);
 	Cfg.idealvad=Cfg.idealvad.*vadmask;
-	voice=voice.*(vadmask).';
+	if s1==s2
+		voice=voice.*(vadmask);
+	else
+		voice=voice.*(vadmask).';
+	end
 	Cfg.cleanspeech=voice;
+	Cfg.SnrWarmUp=maskperiod*2;
 end
-figure;plot(voice);hold on;plot(interf,'r');hold on;plot(noise(1,:),'k');
+%figure;plot(voice);hold on;plot(interf,'r');hold on;plot(noise(1,:),'k');
 
 
 if Cfg.BFSimMode==0
 	%Cfg.DebugEn=1;Cfg.DebugMask=bin2dec('100000');
 	gen_geo_chan();
-	plot_geo_chan();
+	%plot_geo_chan();
 	mic_array_input=mapping_geo_chan(voice,interf,noise);
 	mic_array_power=zeros(1,Cfg.SimMicNum);
 	%figure;plot(Cfg.cleanspeech_chandly,'r');hold on;plot(Cfg.idealvad_chanout,'k');hold on;plot(mic_array_input(2,:),'g');
 	for i=1:Cfg.SimMicNum
 		mic_array_power(i)=mean(abs(mic_array_input(i,:)).^2);
 	end
+	if Cfg.CCAF_TimerEn && Cfg.ANC_TimerEn
+		warmup_sample=5000;
+	else
+		warmup_sample=Cfg.CCAF_TrainLength+Cfg.ANC_TrainLength;
+	end
 	Cfg.MicArrayAvgPower=mean(mic_array_power);
 	beamformingout=beamforming(mic_array_input);
+	outpower=sum((abs(beamformingout(warmup_sample+1:end)).^2).*Cfg.idealvad_fbfout(warmup_sample+1:end))./sum(Cfg.idealvad_fbfout(warmup_sample+1:end));
+	powerratio_db=10*log10(outpower/Cfg.MicArrayAvgPower);
 	%figure;plot(Cfg.cleanspeech_chandly,'r');hold on;plot(Cfg.idealvad_chanout,'k');hold on;plot(mic_array_input(1,:),'g');
-	if Cfg.DebugEn && Cfg.GenieEn
-		figure;plot(mic_array_input(1,:),'r');
-		hold on;plot(Cfg.mic_array_refdata(1,:),'g');
-		hold on;plot(Cfg.mic_array_refintf(1,:),'k');
-		hold on;plot(Cfg.mic_array_refnoise(1,:),'b');title('BF in')
-		figure;plot(beamformingout,'r');
-		hold on;plot(Cfg.refdata_beamformingout,'g');
-		hold on;plot(Cfg.refintf_beamformingout,'k');
-		hold on;plot(Cfg.refnoise_beamformingout,'b');title('BF out');
-		figure;
-		plot(Cfg.mic_array_refintf(1,:),'g');
-		hold on;plot(Cfg.refintf_beamformingout,'k');
+	if Cfg.DebugEn 
+		if Cfg.GenieEn
+			figure;plot(mic_array_input(1,:),'r');
+			hold on;plot(Cfg.mic_array_refdata(1,:),'g');
+			hold on;plot(Cfg.mic_array_refintf(1,:),'k');
+			hold on;plot(Cfg.mic_array_refnoise(1,:),'b');title('BF in')
+			figure;plot(beamformingout,'r');
+			hold on;plot(Cfg.refdata_beamformingout,'g');
+			hold on;plot(Cfg.refintf_beamformingout,'k');
+			hold on;plot(Cfg.refnoise_beamformingout,'b');title('BF out');
+			figure;
+			plot(Cfg.mic_array_refintf(1,:),'g');
+			hold on;plot(Cfg.refintf_beamformingout,'k');
+
+			inf_outpower=sum((abs(Cfg.refintf_beamformingout).^2).*Cfg.idealvad_fbfout)./sum(Cfg.idealvad_fbfout);
+			noise_outpower=mean((abs(Cfg.refnoise_beamformingout).^2));
+			sig_outpower=sum((abs(Cfg.refdata_beamformingout).^2).*Cfg.idealvad_fbfout)./sum(Cfg.idealvad_fbfout);
+			SIR_db=10*log10(sig_outpower/(inf_outpower));
+			SNR_db=10*log10(sig_outpower/(noise_outpower));
+			SINR_db=10*log10(sig_outpower/(inf_outpower+noise_outpower));
+			display(strcat('SIR_ref=',num2str(SIR_db)));
+			display(strcat('SNR_ref=',num2str(SNR_db)));
+			display(strcat('SINR_ref=',num2str(SINR_db)));
+		end
 
 		figure;
 		plot(Cfg.idealvad_fbfout,'k');
 		hold on;plot(Cfg.cleanspeech_bfdly,'g');
 		hold on;plot(beamformingout,'r');
-		%combine=Cfg.refdata_beamformingout+Cfg.refintf_beamformingout+Cfg.refnoise_beamformingout+0.05;
 		%hold on;plot(combine,'b');
 		legend('vad','cleanspeech','bf out');
 		grid on;title('dly clean speech vs beamforming out vs combine out');
+		%figure;
+		%plot(Cfg.cleanspeech_chandly);hold on;plot(mic_array_input(1,:),'r');
+		%legend('cleanspeech','mic in');grid on;title('cleanspeech vs mic in');
 
 		%figure;plot(Cfg.cleanspeech_chandly,'r');hold on;plot(Cfg.idealvad_chanout,'k');hold on;plot(mic_array_input(1,:),'g');
 		SNR_est=snr_est(Cfg.cleanspeech_bfdly,beamformingout,Cfg.idealvad_fbfout);
 		display(strcat('SNRout=',num2str(SNR_est)));
-		%SNR_est=snr_est(Cfg.cleanspeech_chandly,mic_array_input(2,:),Cfg.idealvad_chanout);
-		%display(strcat('SNRin=',num2str(SNR_est)));
-		%SNR_est=snr_est(Cfg.cleanspeech_bfdly,Cfg.refdata_beamformingout,Cfg.idealvad_fbfout);
-		%display(strcat('Distrotion=',num2str(SNR_est)));
+		SNR_est=snr_est(Cfg.cleanspeech_chandly,mic_array_input(1,:),Cfg.idealvad_chanout);
+		display(strcat('SNRin=',num2str(SNR_est)));
+		display(strcat('power ratio=',num2str(powerratio_db)));
 
-		inf_outpower=sum((abs(Cfg.refintf_beamformingout).^2).*Cfg.idealvad_fbfout)./sum(Cfg.idealvad_fbfout);
-		noise_outpower=mean((abs(Cfg.refnoise_beamformingout).^2));
-		sig_outpower=sum((abs(Cfg.refdata_beamformingout).^2).*Cfg.idealvad_fbfout)./sum(Cfg.idealvad_fbfout);
-		SIR_db=10*log10(sig_outpower/(inf_outpower));
-		SNR_db=10*log10(sig_outpower/(noise_outpower));
-		SINR_db=10*log10(sig_outpower/(inf_outpower+noise_outpower));
-		display(strcat('SIR_ref=',num2str(SIR_db)));
-		display(strcat('SNR_ref=',num2str(SNR_db)));
-		display(strcat('SINR_ref=',num2str(SINR_db)));
 
+	end
+	if Cfg.BeamformingMode==3
+		figure;plot(Cfg.ABM_W_final.');
+		figure;plot(Cfg.ABM_MMSE);
 	end
 else
 	Cfg.DebugMask=0;
 	phase_step=10;
 	idxrange=1:180/phase_step;
-	warmup_sample=5000;
+	if Cfg.BFSimMode==3
+		phase_step=2;
+		maxstep_idx=Cfg.CCAF_MaskGen_MaxAngle/phase_step;
+		idxrange=1:(maxstep_idx*2+1);
+	end
+	if Cfg.CCAF_TimerEn && Cfg.ANC_TimerEn
+		warmup_sample=5000;
+	else
+		warmup_sample=Cfg.CCAF_TrainLength+Cfg.ANC_TrainLength;
+	end
 	for idx=idxrange
-		if Cfg.BFSimMode==1
+		if Cfg.BFSimMode==1 
 			%change source position
 			SourcePos=[Cfg.SourcePos(1),(idx-1)*phase_step];InfPos=Cfg.InfPos;
-		else
+		elseif Cfg.BFSimMode==2
 			%change interference position
 			SourcePos=Cfg.SourcePos;InfPos=[Cfg.InfPos(1),(idx-1)*phase_step];
+		elseif Cfg.BFSimMode==3
+			%change source position
+			SourcePos=[Cfg.SourcePos(1),(idx-1-maxstep_idx)*phase_step+90];InfPos=Cfg.InfPos;
 		end
 		gen_geo_chan(SourcePos,InfPos);
 		mic_array_input=mapping_geo_chan(voice,interf,noise);
@@ -138,8 +181,19 @@ else
 			SNR_db(idx)=10*log10(sig_outpower/(noise_outpower));
 			SINR_db(idx)=10*log10(sig_outpower/(inf_outpower+noise_outpower));
 		end
+
+		if Cfg.BFSimMode==3
+			filename=strcat('final_ABM_SteerErr',num2str((idx-1-maxstep_idx)*phase_step),'.mat');
+			filename
+			ABM_W_final=Cfg.ABM_W_final;
+			save(filename,'ABM_W_final');
+		end
 	end
-	angle_array=(idxrange-1)*phase_step;
+	if Cfg.BFSimMode==3
+		angle_array=(idxrange-1-maxstep_idx)*phase_step;
+	else
+		angle_array=(idxrange-1)*phase_step;
+	end
 	if Cfg.GenieEn==1
 		figure;plot(angle_array,SNR_db);
 		hold on;plot(angle_array,Cfg.SNR*ones(1,length(angle_array)),'g');

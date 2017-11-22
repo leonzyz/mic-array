@@ -19,7 +19,7 @@ if Cfg.SourceType==0
 	Cfg.SigPow=Cfg.SourcePower;
 	fs=Cfg.ChanFs;
 	len=Cfg.SourceDuration*Cfg.ChanFs;
-	voice=sin([0:len-1]*2*pi*Cfg.SourceFreq/fs);
+	voice=sin([0:len-1]*2*pi*Cfg.SourceFreq/fs)*sqrt(Cfg.SigPow*2);
 elseif Cfg.SourceType==1
 	[voice_src,fs]=wavread(Cfg.SourceFilename);
 	upsample_rate=Cfg.ChanFs/fs;

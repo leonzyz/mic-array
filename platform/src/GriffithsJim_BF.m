@@ -12,7 +12,7 @@ function beamformingout=GriffithsJim_BF(mic_array_input)
 global Cfg;
 src_len=length(mic_array_input(1,:));
 
-K=7; %Filter lenght=2*K+1
+K=Cfg.ANC_K; %Filter lenght=2*K+1
 FiltL=K*2+1;
 
 %Blocking Matrix, row number=microphone number-1
@@ -88,7 +88,7 @@ if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('8'))
 	figure;plot(mic_steer_out(:,1:5000).');
 end
 
-ANC_W=zeros(1,src_len);
+ANC_metric=zeros(1,src_len);
 for i=1:sim_len
 
 	%input phase
@@ -132,13 +132,11 @@ for i=1:sim_len
 		end
 	end
 	if Cfg.AncVadMaskEn==0 || (Cfg.AncVadMaskEn==1 && Cfg.idealvad_fbfout(i)==0)
-		for bm_idx=1:Cfg.SimMicNum-1
-			ANC_matrix=ANC_matrix+u*y(i)*reg_matrix;
-		end
-		ANC_W(i)=sum(sum(ANC_matrix.^2));
-		if Cfg.ANC_W_NormEn==1
-			if ANC_W(i)>Cfg.ANC_W_NormTH
-				ratio=sqrt(Cfg.ANC_W_NormTH/ANC_W(i));
+		ANC_matrix=ANC_matrix+u*y(i)*reg_matrix;
+		ANC_metric(i)=sum(sum(ANC_matrix.^2));
+		if Cfg.ANC_metric_NormEn==1
+			if ANC_metric(i)>Cfg.ANC_metric_NormTH
+				ratio=sqrt(Cfg.ANC_metric_NormTH/ANC_metric(i));
 				ANC_matrix=ANC_matrix*ratio;
 			end
 		end
@@ -161,7 +159,7 @@ if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('8'))
 	figure;plot(ANC_matrix.');legend('1','2','3');title('ANC matrix');
 	figure;plot(yA,'k');
 	hold on;plot(FBFout_dly,'b');
-	figure;plot(ANC_W,'r');hold on;plot(ANC_W_TH,'g');hold on;plot(X_W,'b');
+	figure;plot(ANC_metric,'r');hold on;plot(ANC_metric_TH,'g');hold on;plot(X_W,'b');
 	hold on;plot(BM_W,'m');
 	if Cfg.ANC_AdaptionU==1
 		figure;plot(u_trace);
