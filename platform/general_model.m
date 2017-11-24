@@ -44,7 +44,7 @@ if Cfg.SourceVadMaskEn==1 && Cfg.SourceType~=1
 		voice=voice.*(vadmask).';
 	end
 	Cfg.cleanspeech=voice;
-	Cfg.SnrWarmUp=maskperiod*2;
+	Cfg.SnrWarmUp=(maskperiod*2)*Cfg.AdcFs/Cfg.ChanFs;
 end
 %figure;plot(voice);hold on;plot(interf,'r');hold on;plot(noise(1,:),'k');
 
@@ -60,13 +60,15 @@ if Cfg.BFSimMode==0
 		mic_array_power(i)=mean(abs(mic_array_input(i,:)).^2);
 	end
 	if Cfg.CCAF_TimerEn && Cfg.ANC_TimerEn
-		warmup_sample=5000;
-	else
 		warmup_sample=Cfg.CCAF_TrainLength+Cfg.ANC_TrainLength;
+	else
+		warmup_sample=Cfg.SnrWarmUp;
 	end
+	warmup_sample
 	Cfg.MicArrayAvgPower=mean(mic_array_power);
 	beamformingout=beamforming(mic_array_input);
 	outpower=sum((abs(beamformingout(warmup_sample+1:end)).^2).*Cfg.idealvad_fbfout(warmup_sample+1:end))./sum(Cfg.idealvad_fbfout(warmup_sample+1:end));
+	outpower
 	powerratio_db=10*log10(outpower/Cfg.MicArrayAvgPower);
 	%figure;plot(Cfg.cleanspeech_chandly,'r');hold on;plot(Cfg.idealvad_chanout,'k');hold on;plot(mic_array_input(1,:),'g');
 	if Cfg.DebugEn 
@@ -95,12 +97,13 @@ if Cfg.BFSimMode==0
 		end
 
 		figure;
-		plot(Cfg.idealvad_fbfout,'k');
+		err=Cfg.cleanspeech_bfdly-beamformingout;
+		plot(Cfg.idealvad_fbfout,'b');
 		hold on;plot(Cfg.cleanspeech_bfdly,'g');
 		hold on;plot(beamformingout,'r');
-		%hold on;plot(combine,'b');
-		legend('vad','cleanspeech','bf out');
-		grid on;title('dly clean speech vs beamforming out vs combine out');
+		hold on;plot(err,'k');
+		legend('vad','cleanspeech','bf out','error');
+		grid on;title('dly clean speech vs beamforming out vs combine out vs error');
 		%figure;
 		%plot(Cfg.cleanspeech_chandly);hold on;plot(mic_array_input(1,:),'r');
 		%legend('cleanspeech','mic in');grid on;title('cleanspeech vs mic in');
@@ -111,8 +114,8 @@ if Cfg.BFSimMode==0
 		SNR_est=snr_est(Cfg.cleanspeech_chandly,mic_array_input(1,:),Cfg.idealvad_chanout);
 		display(strcat('SNRin=',num2str(SNR_est)));
 		display(strcat('power ratio=',num2str(powerratio_db)));
-
-
+		figure;plot(Cfg.ABM_W_final.');title('ABM final')
+		figure;plot(Cfg.ANC_W_final.');title('ANC final')
 	end
 	if Cfg.BeamformingMode==3
 		figure;plot(Cfg.ABM_W_final.');
@@ -120,7 +123,7 @@ if Cfg.BFSimMode==0
 	end
 else
 	Cfg.DebugMask=0;
-	phase_step=10;
+	phase_step=Cfg.BFSimPhaseStep;
 	idxrange=1:180/phase_step;
 	if Cfg.BFSimMode==3
 		phase_step=2;
@@ -128,9 +131,9 @@ else
 		idxrange=1:(maxstep_idx*2+1);
 	end
 	if Cfg.CCAF_TimerEn && Cfg.ANC_TimerEn
-		warmup_sample=5000;
-	else
 		warmup_sample=Cfg.CCAF_TrainLength+Cfg.ANC_TrainLength;
+	else
+		warmup_sample=Cfg.SnrWarmUp;
 	end
 	for idx=idxrange
 		if Cfg.BFSimMode==1 

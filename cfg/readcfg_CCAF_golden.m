@@ -10,7 +10,7 @@
 global Cfg;
 Cfg.Scenario=0;	%0=general model,1=fixbeamforming,2=frost beamforming,3=GJBF
 Cfg.BeamformingMode=3;	%beamforming mode in general model,0=fixbeamforming,1=frost beamforming,2=GJBF,3=CCAF+NCAF
-Cfg.BFSimMode=2;	%0=debug,1=power sweep, fix steer angle, try different source angle,2=interference sweep, fix steer angle and source angle, try different interference angle,3=get CCAF mask
+Cfg.BFSimMode=1;	%0=debug,1=power sweep, fix steer angle, try different source angle,2=interference sweep, fix steer angle and source angle, try different interference angle,3=get CCAF mask
 Cfg.BFSimPhaseStep=10;
 Cfg.GenieEn=0;	%Genie info enable
 Cfg.DebugEn=0;	%0=disable,1=enable
@@ -26,11 +26,11 @@ Cfg.MicDist=4.1e-2;	%microphone distance
 %Cfg.MicDist=1.1e-2;	%microphone distance
 Cfg.MicArrayType=0;	%0=ULA,1=RLA,etc
 Cfg.SNR=40;	%SNR of single microphone
-Cfg.SIR=0;	%SIR of single microphone
+Cfg.SIR=40;	%SIR of single microphone
 %Cfg.TargetSigPow=0.1;	%
 Cfg.SourceType=2;	%0=single tone,1=voice,2=bandpass gaussian signal
 Cfg.SourceFreq=100;	%only for SourceType=0
-Cfg.SourceVadMaskEn=1;	%only for Source Typt 0/2
+Cfg.SourceVadMaskEn=0;	%only for Source Typt 0/2
 Cfg.SourceVadMaskMode=1;	%0=Interference first,1=signal first
 Cfg.SourceVadMaskPeriod=2.5;	%VAD Mask period
 Cfg.SourceVadMaskLen=1.5;	%VAD Mask length of "1"
@@ -68,7 +68,7 @@ Cfg.CCAF_MaskGen_MaxAngle=20;
 Cfg.CCAF_MaskMaxAngle=10;
 %Cfg.CCAF_MaskUpperBound=[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1];
 %Cfg.CCAF_MaskLowerBound=[-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1];
-Cfg.CcafVadMaskEn=1;
+Cfg.CcafVadMaskEn=0;
 Cfg.ANC_u=0.2;	%adaptive beam forming training speed of ANC
 Cfg.ANC_AdaptionU=1;	%ANC u factor adaption enable,0=fix ANC u,1=adaptive u
 Cfg.ANC_dlyComp=40;	%delay comp on FBF out to align CCAF out and FBF out
@@ -76,8 +76,8 @@ Cfg.ANC_K=20;
 Cfg.BlockMatrixType=0;	%BM type for GJBF, 0=[1,-1,0..] cyclic vector, 1=partial hadamar matrix
 Cfg.ANC_metric_NormEn=1;	%ANC normalization enable
 Cfg.ANC_metric_NormTH=20;	%ANC normalization Threshold
-Cfg.AncVadMaskEn=1;	%0=ANC training all the time, 1=ANC traininig only when VAD=0
-Cfg.CCAF_TimerEn=0;
+Cfg.AncVadMaskEn=0;	%0=ANC training all the time, 1=ANC traininig only when VAD=0
+Cfg.CCAF_TimerEn=1;
 Cfg.CCAF_TrainLength=50000;
 Cfg.ANC_TimerEn=0;
 Cfg.ANC_TrainLength=150000;

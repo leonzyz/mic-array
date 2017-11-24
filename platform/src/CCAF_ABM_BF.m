@@ -179,10 +179,10 @@ for i=1:sim_len
 		if Cfg.CCAF_MaskEn
 			for mic_idx=1:Cfg.SimMicNum
 				for k=1:CCAF_FiltL
-					if ABM_W(mic_idx,k)>Cfg.CCAF_MaskUpperBound(k)
-						ABM_W(mic_idx,k)=Cfg.CCAF_MaskUpperBound(k);
-					elseif ABM_W(mic_idx,k)<Cfg.CCAF_MaskLowerBound(k)
-						ABM_W(mic_idx,k)=Cfg.CCAF_MaskLowerBound(k);
+					if ABM_W(mic_idx,k)>Cfg.CCAF_MaskUpperBound(mic_idx,k)
+						ABM_W(mic_idx,k)=Cfg.CCAF_MaskUpperBound(mic_idx,k);
+					elseif ABM_W(mic_idx,k)<Cfg.CCAF_MaskLowerBound(mic_idx,k)
+						ABM_W(mic_idx,k)=Cfg.CCAF_MaskLowerBound(mic_idx,k);
 					end
 				end
 			end
@@ -234,6 +234,7 @@ end
 beamformingout=z;
 Cfg.ABM_W_final=ABM_W;
 Cfg.ABM_MMSE=ABM_MMSE;
+Cfg.ANC_W_final=ANC_W;
 
 if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('10'))
 	%{
@@ -323,8 +324,9 @@ if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('10'))
 	%size(yy)
 	%size(ABM_W_trace0)
 	%figure;surf(xx,yy,ABM_W_trace0(1:500:end,:).');
-	figure;plot(ABM_W(1,:));
+	%figure;plot(ABM_W(1,:));
 
+	figure;plot(ANC_metric,'r');title('ANC metric')
 
 end
 
