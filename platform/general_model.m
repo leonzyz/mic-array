@@ -36,12 +36,19 @@ if Cfg.SourceVadMaskEn==1 && Cfg.SourceType~=1
 		end
 		vadmask(rangeidx)=ones(1,masklen1);
 	end
-	s1=size(vadmask);s2=size(voice);
+	s1=size(vadmask);s2=size(voice);s3=size(interf);
 	Cfg.idealvad=Cfg.idealvad.*vadmask;
 	if s1==s2
 		voice=voice.*(vadmask);
 	else
 		voice=voice.*(vadmask).';
+	end
+	if Cfg.InfVadMaskEn
+		if s1==s3
+			interf=interf.*(1-vadmask);
+		else
+			interf=interf.*(1-vadmask).';
+		end
 	end
 	Cfg.cleanspeech=voice;
 	Cfg.SnrWarmUp=(maskperiod*2)*Cfg.AdcFs/Cfg.ChanFs;
@@ -70,6 +77,11 @@ if Cfg.BFSimMode==0
 	outpower=sum((abs(beamformingout(warmup_sample+1:end)).^2).*Cfg.idealvad_fbfout(warmup_sample+1:end))./sum(Cfg.idealvad_fbfout(warmup_sample+1:end));
 	outpower
 	powerratio_db=10*log10(outpower/Cfg.MicArrayAvgPower);
+	if Cfg.SourceVadMaskEn && Cfg.InfVadMaskEn
+		infpowerin=sum(abs(interf(warmup_sample+1:end)).^2.*((1-Cfg.idealvad(warmup_sample+1:end))).')./sum(1-Cfg.idealvad(warmup_sample+1:end));
+		infpowerout=sum((abs(beamformingout(warmup_sample+1:end)).^2).*(1-Cfg.idealvad_fbfout(warmup_sample+1:end)))./sum((1-Cfg.idealvad_fbfout(warmup_sample+1:end)));
+		infpowerratio_db=10*log10(infpowerout/infpowerin);
+	end
 	%figure;plot(Cfg.cleanspeech_chandly,'r');hold on;plot(Cfg.idealvad_chanout,'k');hold on;plot(mic_array_input(1,:),'g');
 	if Cfg.DebugEn 
 		if Cfg.GenieEn
@@ -116,6 +128,10 @@ if Cfg.BFSimMode==0
 		display(strcat('power ratio=',num2str(powerratio_db)));
 		figure;plot(Cfg.ABM_W_final.');title('ABM final')
 		figure;plot(Cfg.ANC_W_final.');title('ANC final')
+		if Cfg.SourceVadMaskEn && Cfg.InfVadMaskEn
+			display(strcat('inf power ratio=',num2str(infpowerratio_db)));
+		end
+
 	end
 	if Cfg.BeamformingMode==3
 		figure;plot(Cfg.ABM_W_final.');
@@ -171,6 +187,12 @@ else
 		beamformingout=beamforming(mic_array_input);
 		outpower=sum((abs(beamformingout(warmup_sample+1:end)).^2).*Cfg.idealvad_fbfout(warmup_sample+1:end))./sum(Cfg.idealvad_fbfout(warmup_sample+1:end));
 		powerratio_db(idx)=10*log10(outpower/Cfg.MicArrayAvgPower);
+		if Cfg.SourceVadMaskEn && Cfg.InfVadMaskEn && Cfg.BFSimMode==2
+			infpowerin=sum(abs(interf(warmup_sample+1:end)).^2.*((1-Cfg.idealvad(warmup_sample+1:end))).')./sum(1-Cfg.idealvad(warmup_sample+1:end));
+			infpowerout=sum((abs(beamformingout(warmup_sample+1:end)).^2).*(1-Cfg.idealvad_fbfout(warmup_sample+1:end)))./sum((1-Cfg.idealvad_fbfout(warmup_sample+1:end)));
+			infpowerratio_db(i)=10*log10(infpowerout/infpowerin);
+		end
+
 		SNR_est(idx)=snr_est(Cfg.cleanspeech_bfdly,beamformingout,Cfg.idealvad_fbfout);
 		if Cfg.GenieEn==1
 			inf_outpower=sum((abs(Cfg.refintf_beamformingout).^2).*Cfg.idealvad_fbfout)./sum(Cfg.idealvad_fbfout);
@@ -219,6 +241,10 @@ else
 	end
 	figure;plot(angle_array,powerratio_db);grid on;xlabel('angle(degree)');ylabel('att(dB)');
 	title('beamforming beam pattern');
+	if Cfg.SourceVadMaskEn && Cfg.InfVadMaskEn && Cfg.BFSimMode==2
+		figure;plot(angle_array,infpowerratio_db);grid on;xlabel('angle(degree)');ylabel('Inf att(dB)');
+		title('Inf att pattern');
+	end
 	size(SNR_est)
 	size(angle_array)
 	figure;plot(angle_array,SNR_est);

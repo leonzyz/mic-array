@@ -326,7 +326,8 @@ if Cfg.DebugEn && bitand(Cfg.DebugMask,hex2dec('10'))
 	%figure;surf(xx,yy,ABM_W_trace0(1:500:end,:).');
 	%figure;plot(ABM_W(1,:));
 
-	figure;plot(ANC_metric,'r');title('ANC metric')
 
 end
+figure;plot(ANC_metric,'r');title('ANC metric')
+figure;plot(ABM_MMSE,'r');title('ABM MMSE')
 
