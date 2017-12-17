@@ -16,7 +16,7 @@ lowbuff=ones(Cfg.MicNum,filtL)*10;
 figure;
 for i=idxrange
 	phase=(i-1)*phasestep-phasebound;
-	filename=strcat('final_ABM_SteerErr',num2str(phase),'.mat');
+	filename=strcat(Cfg.CCAF_MaskFileDir,'/final_ABM_SteerErr',num2str(phase),'.mat');
 	load(filename);
 	for micidx=1:Cfg.MicNum
 		upbuff(micidx,:)=max([ABM_W_final(micidx,:);upbuff(micidx,:)]);
@@ -32,7 +32,7 @@ lowerbound=lowbuff;
 for k=1:5
 	for i=2:filtL-1
 		for micidx=1:Cfg.MicNum
-			if upperbound(micidx,i)<upperbound(micidx,i-1) && upperbound(i)<upperbound(micidx,i+1)
+			if upperbound(micidx,i)<upperbound(micidx,i-1) && upperbound(micidx,i)<upperbound(micidx,i+1)
 				upperbound(micidx,i)=(upperbound(micidx,i-1)+upperbound(micidx,i+1))/2;
 			end
 			if lowerbound(micidx,i)>lowerbound(micidx,i-1) && lowerbound(micidx,i)>lowerbound(micidx,i+1)

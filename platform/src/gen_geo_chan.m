@@ -40,17 +40,22 @@ Cfg.SourcePosXY=Cfg.SourceR*Cfg.SourceAngleVect;
 Cfg.InfAngleVect=[cos(InfPos(2)/180*pi),sin(InfPos(2)/180*pi)];
 Cfg.InfR=InfPos(1);
 Cfg.InfPosXY=Cfg.InfR*Cfg.InfAngleVect;
-Cfg.MicArrayPosXY=zeros(2,MicNum);
+Cfg.MicArrayPosXY=zeros(2,MicNum,Cfg.MicRowNum);
 Cfg.SimMicNum=MicNum;
+Cfg.SimMicRowNum=Cfg.MicRowNum;
 Cfg.SimMicDist=MicDist;
+Cfg.DistS2M=zeros(MicNum,Cfg.MicRowNum);
+Cfg.DistI2M=zeros(MicNum,Cfg.MicRowNum);
+MicMaxRowDist=(Cfg.SimMicRowNum-1)/2*Cfg.MicRowDist;
+MicRowDistArray=-MicMaxRowDist:Cfg.MicRowDist:MicMaxRowDist;
 if Cfg.MicArrayType==0
-	Cfg.MicArrayPosXY(2,:)=zeros(1,MicNum);
-	MicMaxDist=(MicNum-1)/2*MicDist;
-	Cfg.MicArrayPosXY(1,:)=-MicMaxDist:MicDist:MicMaxDist;
-	Cfg.DistS2M=zeros(1,MicNum);
-	Cfg.DistI2M=zeros(1,MicNum);
-	for i=1:MicNum
-		Cfg.DistS2M(i)=sqrt((Cfg.MicArrayPosXY(1,i)-Cfg.SourcePosXY(1))^2+(Cfg.MicArrayPosXY(2,i)-Cfg.SourcePosXY(2)).^2);
-		Cfg.DistI2M(i)=sqrt((Cfg.MicArrayPosXY(1,i)-Cfg.InfPosXY(1))^2+(Cfg.MicArrayPosXY(2,i)-Cfg.InfPosXY(2)).^2);
+	for r=1:Cfg.MicRowNum
+		Cfg.MicArrayPosXY(2,:,r)=MicRowDistArray(r);
+		MicMaxDist=(MicNum-1)/2*MicDist;
+		Cfg.MicArrayPosXY(1,:,r)=-MicMaxDist:MicDist:MicMaxDist;
+		for i=1:MicNum
+			Cfg.DistS2M(i,r)=sqrt((Cfg.MicArrayPosXY(1,i,r)-Cfg.SourcePosXY(1))^2+(Cfg.MicArrayPosXY(2,i,r)-Cfg.SourcePosXY(2)).^2);
+			Cfg.DistI2M(i,r)=sqrt((Cfg.MicArrayPosXY(1,i,r)-Cfg.InfPosXY(1))^2+(Cfg.MicArrayPosXY(2,i,r)-Cfg.InfPosXY(2)).^2);
+		end
 	end
 end
