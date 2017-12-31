@@ -8,7 +8,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 global Cfg;
-Cfg.Scenario=0;	%0=general model,1=fixbeamforming,2=frost beamforming,3=GJBF
+Cfg.Scenario=0;	%0=general model,1=fixbeamforming,2=frost beamforming,3=GJBF,4=test script
 Cfg.BeamformingMode=3;	%beamforming mode in general model,0=fixbeamforming,1=frost beamforming,2=GJBF,3=CCAF+NCAF,4=rectanguler array CCAF+NCAF, 5=rectanguler array CCAF+NCAF 2X1D, 
 Cfg.BFSimMode=0;	%0=debug,1=power sweep, fix steer angle, try different source angle,2=interference sweep, fix steer angle and source angle, try different interference angle,3=get CCAF mask
 Cfg.BFSimPhaseStep=10;
@@ -19,6 +19,10 @@ Cfg.FixEn=0;	%
 Cfg.AdcFs=32e3;	%processing sample rate
 Cfg.ChanFs=64e3;	%modeling sample rate
 Cfg.ChanMode=0;	%0=simple delay mode,1=reveberant room
+%Cfg.ChanWallDist=[3.01,3];	% wall distance in X,Y direction
+%Cfg.ChanWallDist=[3,3];	% wall distance in X,Y direction
+Cfg.ChanWallDist=[20,22];	% wall distance in X,Y direction
+Cfg.WallReflactionFactor=0.7;
 Cfg.MicRowNum=2	% Mic array row number, the first row is at Y postion=0,
 Cfg.MicNum=3;	%microphone number
 %Cfg.MicNum=3;	%microphone number
@@ -41,7 +45,7 @@ Cfg.SourceBW=[300,3700];	%bandpass gaussian signal start/end freq
 Cfg.SourcePower=0.1;	%only for SourceType 0 & 2
 Cfg.SourceFilename='../source/emma.wav';	%only for SourceType=1
 %Cfg.SourceFs=16e3;	%voice source file sample rate,if the source file contain Fs, it will be overwrote
-Cfg.SourcePos=[10,0];	%voice source distance and direction
+Cfg.SourcePos=[10,45];	%voice source distance and direction
 Cfg.NoiseType=0;	%Interference typ,0=awgn,1=noise source
 %Cfg.NoiseBW=8e3;	%only for NoiseType=0
 Cfg.NoiseFilename='source/noise.wav';	%only for SourceType=1
@@ -52,7 +56,7 @@ Cfg.InfFreq=1.7e3;	%only for InfType=0
 Cfg.InfBW=4e3;	%only for InfType=1
 %Cfg.InfFs=16e3;	%if the source file contain Fs, it will be overwrote
 Cfg.InfFilename='source/noise.wav';	%only for InfType=2
-Cfg.InfPos=[20,140];	%voice source distance and direction
+Cfg.InfPos=[10,140];	%voice source distance and direction
 Cfg.InfVadMaskEn=0;		%
 Cfg.GccEn=0;	%0=GCC disble, 1=GCC enable
 Cfg.GccNotchEn=0;	%

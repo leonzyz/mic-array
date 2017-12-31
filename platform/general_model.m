@@ -91,7 +91,7 @@ if Cfg.BFSimMode==0
 		%sound(mic_array_input(1,:,1),Cfg.AdcFs);
 		%figure;plot(beamformingout);
 		%sound(beamformingout,Cfg.AdcFs);
-		audiowrite('monaural_bfout.wav',beamformingout,Cfg.AdcFs);
+		%audiowrite('monaural_bfout.wav',beamformingout,Cfg.AdcFs);
 	end
 	powerratio_db=10*log10(outpower/Cfg.MicArrayAvgPower);
 	if Cfg.SourceVadMaskEn && Cfg.InfVadMaskEn
