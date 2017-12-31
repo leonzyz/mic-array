@@ -21,14 +21,25 @@ if Cfg.SourceType==0
 	len=Cfg.SourceDuration*Cfg.ChanFs;
 	voice=sin([0:len-1]*2*pi*Cfg.SourceFreq/fs)*sqrt(Cfg.SigPow*2);
 elseif Cfg.SourceType==1
-	[voice_src,fs]=wavread(Cfg.SourceFilename);
+	[tmp_voice_src,fs]=audioread(Cfg.SourceFilename);
+	if ndims(tmp_voice_src)>1
+		voice_src=tmp_voice_src(:,1);
+	else
+		voice_src=tmp_voice_src;
+	end
 	upsample_rate=Cfg.ChanFs/fs;
+	%tt_voice=resample(voice_src,fs,Cfg.ChanFs,64);
+	tt_voice=resample(voice_src,Cfg.ChanFs,fs,64);
+	tot_len=floor(length(tt_voice)/32)*32;
+	voice=tt_voice(1:tot_len);
 	%display(strcat('upsample_rate=',num2str(upsample_rate)))
+	%{
 	if upsample_rate<1
 		voice=resample(voice_src,1,1/upsample_rate,64);
 	else
 		voice=resample(voice_src,upsample_rate,1,64);
 	end
+	%}
 	vadflag=G729(voice,Cfg.ChanFs,0.01*Cfg.ChanFs*3,0.01*Cfg.ChanFs);
 	Cfg.SigPow=mean(abs(voice).^2)*length(vadflag)/sum(vadflag);
 elseif Cfg.SourceType==2
@@ -76,18 +87,27 @@ elseif Cfg.InfType==1
 	noise_filter=filter(h,1,tmp_noise);
 	interf=(noise_filter(fN:fN+len-1)).';
 else
-	[interf_src,fs]=wavread(Cfg.InfFilename);
+	[tmp_interf_src,fs]=audioread(Cfg.InfFilename);
+	voicelen=length(voice);
+	interflen=voicelen/Cfg.ChanFs*fs*1.1;
+	if interflen>length(tmp_interf_src)
+		interflen=length(tmp_interf_src)
+	end
+	if ndims(tmp_interf_src)>1
+		interf_src=tmp_interf_src(1:interflen,1);
+	else
+		interf_src=tmp_interf_src(1:interflen);
+	end
+	%plot(tmp_interf_src);
+	%sound(tmp_interf_src,fs);
+
 	upsample_rate=Cfg.ChanFs/fs;
 	%display(strcat('upsample_rate=',num2str(upsample_rate)))
-	if upsample_rate>1
-		interf_tmp=resample(interf_src,upsample_rate,1,64);
-	else
-		interf_tmp=resample(interf_src,1,1/upsample_rate,64);
-	end
+	interf_tmp=resample(interf_src,Cfg.ChanFs,fs,64);
 	vadflag=G729(interf_tmp,Cfg.ChanFs,0.01*Cfg.ChanFs*3,0.01*Cfg.ChanFs);
 	interf_pow=mean(abs(interf_tmp).^2)*length(vadflag)/sum(vadflag);
 	scaler=sqrt(Cfg.InfPow/interf_pow);
-	interf=interf*scaler;
+	interf=interf_tmp*scaler;
 end
 if length(interf)>length(voice)
 	interf=interf(1:length(voice));
@@ -103,7 +123,7 @@ if Cfg.NoiseType==0
 		noise(i,:)=randn(1,len)*scaler;
 	end
 else
-	[noise_src,fs]=readwave(Cfg.NoiseFilename);
+	[noise_src,fs]=audioread(Cfg.NoiseFilename);
 	upsample_rate=Cfg.AdcFs/fs;
 	if upsample_rate>1
 		noise_tmp=resample(noise_src,upsample_rate,1,64);

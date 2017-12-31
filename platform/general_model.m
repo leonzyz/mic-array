@@ -7,8 +7,9 @@ display(strcat('interferece power=',num2str(Cfg.InfPow)));
 display(strcat('noise power=',num2str(Cfg.NoisePow)));
 
 if Cfg.SourceType==1
-	Cfg.idealvad=G729(Cfg.cleanspeech,Cfg.ChanFs,0.01*Cfg.ChanFs*3,0.01*Cfg.ChanFs);%according to the G729.B
-	%figure;plot(Cfg.cleanspeech);hold on;plot(Cfg.idealvad*abs(max(Cfg.cleanspeech)),'r');grid on;
+	Cfg.idealvad=G729(Cfg.cleanspeech,Cfg.ChanFs,0.005*Cfg.ChanFs*3,0.005*Cfg.ChanFs);%according to the G729.B
+	figure;plot(Cfg.cleanspeech);hold on;plot(Cfg.idealvad*abs(max(Cfg.cleanspeech)),'r');grid on;
+	%sound(Cfg.cleanspeech,Cfg.ChanFs);
 else
 	Cfg.idealvad=ones(1,length(Cfg.cleanspeech));
 end
@@ -65,7 +66,7 @@ if Cfg.BFSimMode==0
 	gen_geo_chan();
 	plot_geo_chan();
 	mic_array_input=mapping_geo_chan(voice,interf,noise);
-	size(mic_array_input)
+	%size(mic_array_input)
 	mic_array_power=zeros(Cfg.SimMicNum,Cfg.SimMicRowNum);
 	%figure;plot(Cfg.cleanspeech_chandly,'r');hold on;plot(Cfg.idealvad_chanout,'k');hold on;plot(mic_array_input(2,:),'g');
 	for r=1:Cfg.SimMicRowNum
@@ -82,7 +83,16 @@ if Cfg.BFSimMode==0
 	Cfg.MicArrayAvgPower=mean(mean(mic_array_power));
 	beamformingout=beamforming(mic_array_input);
 	outpower=sum((abs(beamformingout(warmup_sample+1:end)).^2).*Cfg.idealvad_fbfout(warmup_sample+1:end))./sum(Cfg.idealvad_fbfout(warmup_sample+1:end));
-	outpower
+	if Cfg.SourceType==1
+		%figure;plot(Cfg.cleanspeech_bfdly);
+		%sound(Cfg.cleanspeech_bfdly,Cfg.AdcFs);
+		%figure;plot(mic_array_input(1,:,1));
+		%audiowrite('single_mic_input_0dB.wav',mic_array_input(1,:,1),Cfg.AdcFs);
+		%sound(mic_array_input(1,:,1),Cfg.AdcFs);
+		%figure;plot(beamformingout);
+		%sound(beamformingout,Cfg.AdcFs);
+		audiowrite('monaural_bfout.wav',beamformingout,Cfg.AdcFs);
+	end
 	powerratio_db=10*log10(outpower/Cfg.MicArrayAvgPower);
 	if Cfg.SourceVadMaskEn && Cfg.InfVadMaskEn
 		infpowerin=sum(abs(interf(warmup_sample+1:end)).^2.*((1-Cfg.idealvad(warmup_sample+1:end))).')./sum(1-Cfg.idealvad(warmup_sample+1:end));

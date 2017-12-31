@@ -58,7 +58,11 @@ if Cfg.ChanMode==0
 			inf_tmpin(Cfg.InfDelaySampleInt(i,r)+1:end)=interf(1:end-Cfg.InfDelaySampleInt(i,r));
 			inf_tmpin=filter(h_sinc,1,inf_tmpin);
 			adcin=src_tmpin+inf_tmpin;
-			mic_array_data(i,:,r)=adcin(1:AdcFsRatio:end)+noise(1:out_len);
+			%size(adcin)
+			%size(noise)
+			%out_len
+			%display('--------------');
+			mic_array_data(i,:,r)=adcin(1:AdcFsRatio:end)+noise(i,1:out_len);
 			if Cfg.GenieEn==1
 				Cfg.mic_array_refdata(i,:,r)=src_tmpin(1:AdcFsRatio:end);
 				Cfg.mic_array_refintf(i,:,r)=inf_tmpin(1:AdcFsRatio:end);
